@@ -2,29 +2,28 @@
 
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+
 Route::get('/', function () {
-    return view('welcome');
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    } else {
+        return redirect()->route('login');
+    }
 });
 
-Route::get('/nova-pagina-publica', [MainController::class, 'nova_pagina_publica'])->name('ova_pagina_publica');
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [MainController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-
-// Route news
-Route::middleware(['auth'])->group(function(){
-    Route::get('/nova-pagina', [MainController::class, 'nova_pagina'])->name('nova_pagina');
-    Route::get('/testes', [MainController::class, 'testes'])->name('testes');
+    
+    Route::get('/post/create',[MainController::class, 'createPost'])->name('post.create');
+    Route::post('/post/store', [MainController::class, 'storePost'])->name('post.store');
+    Route::get('/post/delete/delete/{id}',[MainController::class, 'deletePost'])->name('post.delete');
+    
 });
 
 
